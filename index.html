@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bilancio Familiare</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="app__header">
+      <div>
+        <p class="app__eyebrow">Bilancio Familiare</p>
+        <h1>Gestisci entrate e uscite di casa</h1>
+        <p class="app__subtitle">
+          Inserisci ogni movimento e tieni sotto controllo il saldo mensile.
+        </p>
+      </div>
+      <div class="balance">
+        <span class="balance__label">Saldo attuale</span>
+        <strong class="balance__value" id="balance">€0,00</strong>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Aggiungi un movimento</h2>
+      <form id="entry-form" class="form">
+        <label>
+          Descrizione
+          <input type="text" id="description" placeholder="Spesa supermercato" required />
+        </label>
+        <label>
+          Importo (€)
+          <input type="number" id="amount" step="0.01" placeholder="0,00" required />
+        </label>
+        <label>
+          Tipo
+          <select id="type">
+            <option value="income">Entrata</option>
+            <option value="expense">Uscita</option>
+          </select>
+        </label>
+        <button type="submit">Salva movimento</button>
+      </form>
+    </section>
+
+    <section class="panel panel--split">
+      <div>
+        <h2>Riepilogo</h2>
+        <div class="summary">
+          <div>
+            <span>Entrate</span>
+            <strong id="total-income">€0,00</strong>
+          </div>
+          <div>
+            <span>Uscite</span>
+            <strong id="total-expense">€0,00</strong>
+          </div>
+        </div>
+      </div>
+      <div class="panel__hint">
+        <h3>Consiglio</h3>
+        <p>
+          Inserisci le uscite fisse (mutuo, bollette) e poi quelle variabili per capire
+          dove intervenire.
+        </p>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <h2>Movimenti recenti</h2>
+        <button class="ghost" id="clear-all" type="button">Cancella tutto</button>
+      </div>
+      <div class="table" id="entries"></div>
+    </section>
+  </main>
+
+  <template id="entry-template">
+    <div class="table__row">
+      <div>
+        <strong class="entry__description"></strong>
+        <span class="entry__date"></span>
+      </div>
+      <div class="entry__meta">
+        <span class="entry__type"></span>
+        <strong class="entry__amount"></strong>
+      </div>
+      <button class="icon-button" type="button" aria-label="Rimuovi">✕</button>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
