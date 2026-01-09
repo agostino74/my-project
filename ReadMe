@@ -1,1 +1,23 @@
-ReadMe File
+# Bilancio Familiare
+
+Questa è una piccola app client-side per gestire entrate e uscite di un bilancio familiare.
+
+## Avvio rapido
+
+Puoi avviarla con un server statico locale:
+
+```bash
+./run.sh
+```
+
+Poi apri il browser su `http://127.0.0.1:8000`.
+
+In alternativa puoi servire i file con il comando:
+
+```bash
+python -m http.server 8000
+```
+
+## Note
+
+I dati vengono salvati in `localStorage`, quindi restano nel browser finché non vengono cancellati.
