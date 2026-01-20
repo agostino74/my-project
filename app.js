@@ -4,12 +4,36 @@ const balanceEl = document.getElementById("balance");
 const incomeEl = document.getElementById("total-income");
 const expenseEl = document.getElementById("total-expense");
 const clearAllButton = document.getElementById("clear-all");
+const deleteByPeriodButton = document.getElementById("delete-by-period");
 const entryTemplate = document.getElementById("entry-template");
 const importFileInput = document.getElementById("import-file");
 const importButton = document.getElementById("import-button");
 const importStatus = document.getElementById("import-status");
+const confirmModal = document.getElementById("confirm-modal");
+const confirmMessage = document.getElementById("confirm-message");
+const confirmAccept = document.getElementById("confirm-accept");
+const confirmCancel = document.getElementById("confirm-cancel");
+const periodModal = document.getElementById("period-modal");
+const periodMonthSelect = document.getElementById("period-month");
+const periodYearSelect = document.getElementById("period-year");
+const periodConfirm = document.getElementById("period-confirm");
+const periodCancel = document.getElementById("period-cancel");
 
 const storageKey = "family-budget-entries";
+const monthNames = [
+  "Gennaio",
+  "Febbraio",
+  "Marzo",
+  "Aprile",
+  "Maggio",
+  "Giugno",
+  "Luglio",
+  "Agosto",
+  "Settembre",
+  "Ottobre",
+  "Novembre",
+  "Dicembre",
+];
 
 const formatCurrency = (value) =>
   new Intl.NumberFormat("it-IT", {
@@ -24,6 +48,85 @@ const loadEntries = () => {
 
 const saveEntries = (entries) => {
   localStorage.setItem(storageKey, JSON.stringify(entries));
+};
+
+const getEntryValueDate = (entry) => {
+  const rawDate = entry.valueDate || entry.date;
+  if (!rawDate) {
+    return null;
+  }
+  const parsed = new Date(rawDate);
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+  return parsed;
+};
+
+const openModal = (modal) => {
+  if (!modal) {
+    return;
+  }
+  modal.removeAttribute("hidden");
+};
+
+const closeModal = (modal) => {
+  if (!modal) {
+    return;
+  }
+  modal.setAttribute("hidden", "true");
+};
+
+let confirmAction = null;
+
+const showConfirm = (message, onConfirm) => {
+  if (!confirmModal || !confirmMessage) {
+    if (window.confirm(message)) {
+      onConfirm();
+    }
+    return;
+  }
+  confirmMessage.textContent = message;
+  confirmAction = onConfirm;
+  openModal(confirmModal);
+};
+
+const updateYearOptions = (entries) => {
+  const years = [
+    ...new Set(
+      entries
+        .map((entry) => getEntryValueDate(entry))
+        .filter(Boolean)
+        .map((date) => date.getFullYear())
+    ),
+  ];
+  if (years.length === 0) {
+    years.push(new Date().getFullYear());
+  }
+  years.sort((a, b) => b - a);
+  const currentValue = periodYearSelect.value;
+  periodYearSelect.innerHTML = "";
+  years.forEach((year) => {
+    const option = document.createElement("option");
+    option.value = String(year);
+    option.textContent = String(year);
+    periodYearSelect.appendChild(option);
+  });
+  if (currentValue && years.includes(Number(currentValue))) {
+    periodYearSelect.value = currentValue;
+  }
+};
+
+const initMonthOptions = () => {
+  if (periodMonthSelect.options.length > 0) {
+    return;
+  }
+  monthNames.forEach((month, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = month;
+    periodMonthSelect.appendChild(option);
+  });
+  periodMonthSelect.value = String(new Date().getMonth());
 };
 
 const renderSummary = (entries) => {
@@ -215,6 +318,7 @@ const updateUI = () => {
   const entries = loadEntries();
   renderSummary(entries);
   renderEntries(entries);
+  updateYearOptions(entries);
 };
 
 form.addEventListener("submit", (event) => {
@@ -242,10 +346,72 @@ form.addEventListener("submit", (event) => {
   updateUI();
 });
 
-clearAllButton.addEventListener("click", () => {
-  saveEntries([]);
-  updateUI();
-});
+if (clearAllButton) {
+  clearAllButton.addEventListener("click", () => {
+    showConfirm(
+      "Attenzione! Stai per cancellare tutto l'archivio dei movimenti. Vuoi continuare?",
+      () => {
+        saveEntries([]);
+        updateUI();
+      }
+    );
+  });
+}
+
+if (deleteByPeriodButton) {
+  deleteByPeriodButton.addEventListener("click", () => {
+    initMonthOptions();
+    updateYearOptions(loadEntries());
+    openModal(periodModal);
+  });
+}
+
+if (periodCancel) {
+  periodCancel.addEventListener("click", () => {
+    closeModal(periodModal);
+  });
+}
+
+if (periodConfirm) {
+  periodConfirm.addEventListener("click", () => {
+    const monthIndex = Number(periodMonthSelect.value);
+    const year = Number(periodYearSelect.value);
+    const monthLabel = monthNames[monthIndex];
+    closeModal(periodModal);
+    showConfirm(
+      `Attenzione!! Stai per cancellare i movimenti relativi al mese di ${monthLabel} ${year}. Vuoi continuare?`,
+      () => {
+        const entries = loadEntries();
+        const updated = entries.filter((entry) => {
+          const date = getEntryValueDate(entry);
+          if (!date) {
+            return true;
+          }
+          return !(date.getMonth() === monthIndex && date.getFullYear() === year);
+        });
+        saveEntries(updated);
+        updateUI();
+      }
+    );
+  });
+}
+
+if (confirmCancel) {
+  confirmCancel.addEventListener("click", () => {
+    closeModal(confirmModal);
+    confirmAction = null;
+  });
+}
+
+if (confirmAccept) {
+  confirmAccept.addEventListener("click", () => {
+    if (confirmAction) {
+      confirmAction();
+    }
+    confirmAction = null;
+    closeModal(confirmModal);
+  });
+}
 
 importButton.addEventListener("click", () => {
   if (typeof XLSX === "undefined") {
@@ -317,3 +483,4 @@ importFileInput.addEventListener("change", () => {
 });
 
 updateUI();
+initMonthOptions();
