@@ -87,6 +87,9 @@ const renderEntries = (entries) => {
 };
 
 const setImportStatus = (message, type = "info") => {
+  if (!importStatus) {
+    return;
+  }
   importStatus.textContent = message;
   importStatus.dataset.status = type;
 };
@@ -245,6 +248,14 @@ clearAllButton.addEventListener("click", () => {
 });
 
 importButton.addEventListener("click", () => {
+  if (typeof XLSX === "undefined") {
+    setImportStatus(
+      "Libreria di importazione non disponibile. Ricarica la pagina o controlla la connessione.",
+      "error"
+    );
+    return;
+  }
+
   if (!importFileInput.files || importFileInput.files.length === 0) {
     setImportStatus("Seleziona un file Excel da importare.", "error");
     return;
@@ -252,31 +263,46 @@ importButton.addEventListener("click", () => {
 
   const [file] = importFileInput.files;
   const reader = new FileReader();
+  setImportStatus("Importazione in corso...", "info");
 
   reader.onload = (event) => {
-    const data = new Uint8Array(event.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const sheet = workbook.Sheets[sheetName];
-    const rows = XLSX.utils.sheet_to_json(sheet, {
-      header: 1,
-      defval: "",
-    });
+    try {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: "",
+      });
 
-    const { imported, errors } = importEntries(rows);
+      const { imported, errors } = importEntries(rows);
 
-    if (errors.length > 0) {
-      setImportStatus(errors.join(" "), "error");
-      return;
+      if (errors.length > 0 && imported === 0) {
+        setImportStatus(errors.join(" "), "error");
+        return;
+      }
+
+      if (errors.length > 0) {
+        setImportStatus(
+          `Importati ${imported} movimenti. ${errors.join(" ")}`,
+          "error"
+        );
+      } else {
+        setImportStatus(
+          imported > 0
+            ? `Importati ${imported} movimenti con successo.`
+            : "Nessun movimento importato.",
+          "success"
+        );
+      }
+      importFileInput.value = "";
+    } catch (error) {
+      setImportStatus(
+        "Errore durante la lettura del file. Verifica il formato del tracciato.",
+        "error"
+      );
     }
-
-    setImportStatus(
-      imported > 0
-        ? `Importati ${imported} movimenti con successo.`
-        : "Nessun movimento importato.",
-      "success"
-    );
-    importFileInput.value = "";
   };
 
   reader.onerror = () => {
@@ -284,6 +310,10 @@ importButton.addEventListener("click", () => {
   };
 
   reader.readAsArrayBuffer(file);
+});
+
+importFileInput.addEventListener("change", () => {
+  setImportStatus("", "info");
 });
 
 updateUI();
