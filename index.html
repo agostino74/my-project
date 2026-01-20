@@ -89,6 +89,145 @@
 
     <section class="panel">
       <div class="panel__header">
+        <div>
+          <h2>Grafici essenziali della famiglia</h2>
+          <p class="form__helper">
+            Visualizzazioni immediate per capire entrate, uscite e margini di miglioramento.
+          </p>
+        </div>
+      </div>
+
+      <div class="chart-grid">
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p class="chart-card__eyebrow">Grafico a barre mensili</p>
+              <h3>Panoramica Entrate vs Uscite</h3>
+            </div>
+            <span class="chart-pill chart-pill--balance">Saldo evidenziato</span>
+          </div>
+          <p class="chart-card__description">
+            Mostra mese per mese il confronto tra entrate e uscite, mettendo in risalto i mesi
+            in perdita con un colore caldo e i mesi positivi con un colore freddo.
+          </p>
+          <ul class="chart-card__details">
+            <li>
+              <span>Perché è utile</span>
+              <strong>Permette di capire subito se il bilancio mensile sta in piedi.</strong>
+            </li>
+            <li>
+              <span>Cosa comunica a colpo d'occhio</span>
+              <strong>Quali mesi generano un saldo negativo e quanto pesano.</strong>
+            </li>
+          </ul>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p class="chart-card__eyebrow">Grafico a donut</p>
+              <h3>Suddivisione delle Spese per Categoria</h3>
+            </div>
+            <span class="chart-pill chart-pill--highlight">Top 3 evidenziate</span>
+          </div>
+          <p class="chart-card__description">
+            Una torta semplice con 7 categorie familiari; le tre fette più grandi sono marcate
+            con un tono più intenso per renderle immediatamente riconoscibili.
+          </p>
+          <ul class="chart-card__details">
+            <li>
+              <span>Perché è utile</span>
+              <strong>Aiuta a focalizzarsi sulle voci che assorbono più budget.</strong>
+            </li>
+            <li>
+              <span>Cosa comunica a colpo d'occhio</span>
+              <strong>Casa, spesa e trasporti (o altre voci) pesano più del resto.</strong>
+            </li>
+          </ul>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p class="chart-card__eyebrow">Grafico a linee</p>
+              <h3>Trend delle Spese nel Tempo</h3>
+            </div>
+            <span class="chart-pill chart-pill--alert">Alert su picchi</span>
+          </div>
+          <p class="chart-card__description">
+            Una linea continua delle uscite totali mensili con indicatori sui punti in cui
+            la spesa cresce più del normale.
+          </p>
+          <ul class="chart-card__details">
+            <li>
+              <span>Perché è utile</span>
+              <strong>Rende visibili gli aumenti improvvisi per intervenire presto.</strong>
+            </li>
+            <li>
+              <span>Cosa comunica a colpo d'occhio</span>
+              <strong>Se le spese stanno scendendo o salendo nel tempo.</strong>
+            </li>
+          </ul>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <p class="chart-card__eyebrow">Grafico comparativo</p>
+              <h3>Dove stiamo spendendo troppo?</h3>
+            </div>
+            <span class="chart-pill chart-pill--alert">Fuori controllo</span>
+          </div>
+          <p class="chart-card__description">
+            Barre affiancate per categoria: media degli ultimi mesi vs spesa corrente, con
+            evidenza delle categorie che superano la soglia.
+          </p>
+          <ul class="chart-card__details">
+            <li>
+              <span>Perché è utile</span>
+              <strong>Individua rapidamente sprechi e abitudini da correggere.</strong>
+            </li>
+            <li>
+              <span>Cosa comunica a colpo d'occhio</span>
+              <strong>Quali categorie stanno sforando rispetto al normale.</strong>
+            </li>
+          </ul>
+        </article>
+
+        <article class="chart-card chart-card--progress">
+          <div class="chart-card__header">
+            <div>
+              <p class="chart-card__eyebrow">Barra di avanzamento</p>
+              <h3>Monitoraggio Obiettivo di Risparmio</h3>
+            </div>
+            <span class="chart-pill chart-pill--balance">Obiettivo chiaro</span>
+          </div>
+          <p class="chart-card__description">
+            Una barra semplice mostra quanto del risparmio mensile o annuale è già stato
+            raggiunto, con percentuale visibile al centro.
+          </p>
+          <div class="progress">
+            <div class="progress__track">
+              <div class="progress__fill" style="width: 68%"></div>
+            </div>
+            <div class="progress__label">68% dell'obiettivo</div>
+          </div>
+          <ul class="chart-card__details">
+            <li>
+              <span>Perché è utile</span>
+              <strong>Motiva a mantenere la rotta e rende il traguardo tangibile.</strong>
+            </li>
+            <li>
+              <span>Cosa comunica a colpo d'occhio</span>
+              <strong>Quanto manca per arrivare al risparmio desiderato.</strong>
+            </li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
         <h2>Movimenti recenti</h2>
         <div class="panel__actions">
           <button class="ghost" id="delete-by-period" type="button">
