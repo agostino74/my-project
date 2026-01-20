@@ -63,16 +63,28 @@ const getEntryValueDate = (entry) => {
 };
 
 const openModal = (modal) => {
-  modal.hidden = false;
+  if (!modal) {
+    return;
+  }
+  modal.removeAttribute("hidden");
 };
 
 const closeModal = (modal) => {
-  modal.hidden = true;
+  if (!modal) {
+    return;
+  }
+  modal.setAttribute("hidden", "true");
 };
 
 let confirmAction = null;
 
 const showConfirm = (message, onConfirm) => {
+  if (!confirmModal || !confirmMessage) {
+    if (window.confirm(message)) {
+      onConfirm();
+    }
+    return;
+  }
   confirmMessage.textContent = message;
   confirmAction = onConfirm;
   openModal(confirmModal);
@@ -334,60 +346,72 @@ form.addEventListener("submit", (event) => {
   updateUI();
 });
 
-clearAllButton.addEventListener("click", () => {
-  showConfirm(
-    "Attenzione! Stai per cancellare tutto l'archivio dei movimenti. Vuoi continuare?",
-    () => {
-      saveEntries([]);
-      updateUI();
+if (clearAllButton) {
+  clearAllButton.addEventListener("click", () => {
+    showConfirm(
+      "Attenzione! Stai per cancellare tutto l'archivio dei movimenti. Vuoi continuare?",
+      () => {
+        saveEntries([]);
+        updateUI();
+      }
+    );
+  });
+}
+
+if (deleteByPeriodButton) {
+  deleteByPeriodButton.addEventListener("click", () => {
+    initMonthOptions();
+    updateYearOptions(loadEntries());
+    openModal(periodModal);
+  });
+}
+
+if (periodCancel) {
+  periodCancel.addEventListener("click", () => {
+    closeModal(periodModal);
+  });
+}
+
+if (periodConfirm) {
+  periodConfirm.addEventListener("click", () => {
+    const monthIndex = Number(periodMonthSelect.value);
+    const year = Number(periodYearSelect.value);
+    const monthLabel = monthNames[monthIndex];
+    closeModal(periodModal);
+    showConfirm(
+      `Attenzione!! Stai per cancellare i movimenti relativi al mese di ${monthLabel} ${year}. Vuoi continuare?`,
+      () => {
+        const entries = loadEntries();
+        const updated = entries.filter((entry) => {
+          const date = getEntryValueDate(entry);
+          if (!date) {
+            return true;
+          }
+          return !(date.getMonth() === monthIndex && date.getFullYear() === year);
+        });
+        saveEntries(updated);
+        updateUI();
+      }
+    );
+  });
+}
+
+if (confirmCancel) {
+  confirmCancel.addEventListener("click", () => {
+    closeModal(confirmModal);
+    confirmAction = null;
+  });
+}
+
+if (confirmAccept) {
+  confirmAccept.addEventListener("click", () => {
+    if (confirmAction) {
+      confirmAction();
     }
-  );
-});
-
-deleteByPeriodButton.addEventListener("click", () => {
-  initMonthOptions();
-  updateYearOptions(loadEntries());
-  openModal(periodModal);
-});
-
-periodCancel.addEventListener("click", () => {
-  closeModal(periodModal);
-});
-
-periodConfirm.addEventListener("click", () => {
-  const monthIndex = Number(periodMonthSelect.value);
-  const year = Number(periodYearSelect.value);
-  const monthLabel = monthNames[monthIndex];
-  closeModal(periodModal);
-  showConfirm(
-    `Attenzione!! Stai per cancellare i movimenti relativi al mese di ${monthLabel} ${year}. Vuoi continuare?`,
-    () => {
-      const entries = loadEntries();
-      const updated = entries.filter((entry) => {
-        const date = getEntryValueDate(entry);
-        if (!date) {
-          return true;
-        }
-        return !(date.getMonth() === monthIndex && date.getFullYear() === year);
-      });
-      saveEntries(updated);
-      updateUI();
-    }
-  );
-});
-
-confirmCancel.addEventListener("click", () => {
-  closeModal(confirmModal);
-  confirmAction = null;
-});
-
-confirmAccept.addEventListener("click", () => {
-  if (confirmAction) {
-    confirmAction();
-  }
-  confirmAction = null;
-  closeModal(confirmModal);
-});
+    confirmAction = null;
+    closeModal(confirmModal);
+  });
+}
 
 importButton.addEventListener("click", () => {
   if (typeof XLSX === "undefined") {
