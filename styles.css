@@ -103,6 +103,122 @@ h1 {
   flex-wrap: wrap;
 }
 
+.chart-grid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.chart-card {
+  border-radius: 18px;
+  padding: 20px;
+  background: #f8f9ff;
+  border: 1px solid #e3e7f2;
+  display: grid;
+  gap: 16px;
+}
+
+.chart-card--progress {
+  grid-column: span 2;
+}
+
+.chart-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.chart-card__eyebrow {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  color: #6b6f7b;
+}
+
+.chart-card h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.chart-card__description {
+  margin: 0;
+  color: #4d5260;
+  line-height: 1.5;
+}
+
+.chart-pill {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.chart-pill--balance {
+  background: #e5f1ff;
+  color: #2453a6;
+}
+
+.chart-pill--highlight {
+  background: #fff1d6;
+  color: #a56300;
+}
+
+.chart-pill--alert {
+  background: #ffe5e5;
+  color: #b73737;
+}
+
+.chart-card__details {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.chart-card__details li {
+  display: grid;
+  gap: 4px;
+}
+
+.chart-card__details span {
+  font-size: 0.85rem;
+  color: #6b6f7b;
+}
+
+.chart-card__details strong {
+  font-size: 0.98rem;
+  color: #1f2430;
+  font-weight: 600;
+}
+
+.progress {
+  display: grid;
+  gap: 10px;
+}
+
+.progress__track {
+  height: 12px;
+  border-radius: 999px;
+  background: #e2e6f3;
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, #1b2b5a, #5e7bdb);
+  border-radius: inherit;
+}
+
+.progress__label {
+  font-weight: 600;
+  color: #1f2430;
+}
+
 .form {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -325,6 +441,10 @@ h1 {
   .app__header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .chart-card--progress {
+    grid-column: auto;
   }
 
   .table__row {
