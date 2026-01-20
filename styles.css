@@ -111,6 +111,12 @@ h1 {
   color: #4a4a4a;
 }
 
+.form__helper {
+  margin: 8px 0 0;
+  color: #6b6b6b;
+  font-size: 0.9rem;
+}
+
 .form input,
 .form select {
   padding: 12px 14px;
@@ -222,6 +228,20 @@ h1 {
   color: #6c6c6c;
   background: #f8f9ff;
   border-radius: 16px;
+}
+
+.import-status {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  color: #4a4a4a;
+}
+
+.import-status[data-status="success"] {
+  color: #207a50;
+}
+
+.import-status[data-status="error"] {
+  color: #b73737;
 }
 
 @media (max-width: 720px) {
