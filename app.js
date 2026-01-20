@@ -5,6 +5,9 @@ const incomeEl = document.getElementById("total-income");
 const expenseEl = document.getElementById("total-expense");
 const clearAllButton = document.getElementById("clear-all");
 const entryTemplate = document.getElementById("entry-template");
+const importFileInput = document.getElementById("import-file");
+const importButton = document.getElementById("import-button");
+const importStatus = document.getElementById("import-status");
 
 const storageKey = "family-budget-entries";
 
@@ -83,6 +86,131 @@ const renderEntries = (entries) => {
     });
 };
 
+const setImportStatus = (message, type = "info") => {
+  if (!importStatus) {
+    return;
+  }
+  importStatus.textContent = message;
+  importStatus.dataset.status = type;
+};
+
+const normalizeHeader = (value) =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, " ");
+
+const parseExcelDate = (value) => {
+  if (typeof value === "number") {
+    const parsed = XLSX.SSF.parse_date_code(value);
+    if (!parsed) {
+      return null;
+    }
+    return new Date(Date.UTC(parsed.y, parsed.m - 1, parsed.d));
+  }
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return value;
+  }
+
+  if (typeof value === "string" && value.trim()) {
+    const parsed = new Date(value);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const parseAmount = (value) => {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string") {
+    const normalized = value.replace(/\./g, "").replace(",", ".");
+    const parsed = Number.parseFloat(normalized);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+  return null;
+};
+
+const importEntries = (rows) => {
+  if (rows.length === 0) {
+    return { imported: 0, errors: ["Il file non contiene righe."] };
+  }
+
+  const headers = rows[0].map((header) => normalizeHeader(header || ""));
+  const requiredHeaders = {
+    "data contabile": null,
+    "data valuta": null,
+    importo: null,
+    descrizione: null,
+  };
+
+  headers.forEach((header, index) => {
+    if (header in requiredHeaders) {
+      requiredHeaders[header] = index;
+    }
+  });
+
+  const missing = Object.entries(requiredHeaders)
+    .filter(([, index]) => index === null)
+    .map(([header]) => header);
+
+  if (missing.length > 0) {
+    return {
+      imported: 0,
+      errors: [
+        `Colonne mancanti: ${missing.join(", ")}.`,
+      ],
+    };
+  }
+
+  const entries = loadEntries();
+  let imported = 0;
+  const errors = [];
+
+  rows.slice(1).forEach((row, rowIndex) => {
+    if (row.length === 0 || row.every((cell) => cell === undefined || cell === "")) {
+      return;
+    }
+
+    const accountingDate = parseExcelDate(
+      row[requiredHeaders["data contabile"]]
+    );
+    const valueDate = parseExcelDate(row[requiredHeaders["data valuta"]]);
+    const amountValue = parseAmount(row[requiredHeaders.importo]);
+    const description = String(
+      row[requiredHeaders.descrizione] ?? ""
+    ).trim();
+
+    if (!accountingDate || amountValue === null || !description) {
+      errors.push(`Riga ${rowIndex + 2}: dati non validi.`);
+      return;
+    }
+
+    const type = amountValue >= 0 ? "income" : "expense";
+    const amount = Math.abs(amountValue);
+
+    entries.push({
+      id: crypto.randomUUID(),
+      description,
+      amount,
+      type,
+      date: accountingDate.toISOString(),
+      valueDate: valueDate ? valueDate.toISOString() : null,
+    });
+    imported += 1;
+  });
+
+  saveEntries(entries);
+  updateUI();
+
+  return { imported, errors };
+};
+
 const updateUI = () => {
   const entries = loadEntries();
   renderSummary(entries);
@@ -117,6 +245,75 @@ form.addEventListener("submit", (event) => {
 clearAllButton.addEventListener("click", () => {
   saveEntries([]);
   updateUI();
+});
+
+importButton.addEventListener("click", () => {
+  if (typeof XLSX === "undefined") {
+    setImportStatus(
+      "Libreria di importazione non disponibile. Ricarica la pagina o controlla la connessione.",
+      "error"
+    );
+    return;
+  }
+
+  if (!importFileInput.files || importFileInput.files.length === 0) {
+    setImportStatus("Seleziona un file Excel da importare.", "error");
+    return;
+  }
+
+  const [file] = importFileInput.files;
+  const reader = new FileReader();
+  setImportStatus("Importazione in corso...", "info");
+
+  reader.onload = (event) => {
+    try {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(sheet, {
+        header: 1,
+        defval: "",
+      });
+
+      const { imported, errors } = importEntries(rows);
+
+      if (errors.length > 0 && imported === 0) {
+        setImportStatus(errors.join(" "), "error");
+        return;
+      }
+
+      if (errors.length > 0) {
+        setImportStatus(
+          `Importati ${imported} movimenti. ${errors.join(" ")}`,
+          "error"
+        );
+      } else {
+        setImportStatus(
+          imported > 0
+            ? `Importati ${imported} movimenti con successo.`
+            : "Nessun movimento importato.",
+          "success"
+        );
+      }
+      importFileInput.value = "";
+    } catch (error) {
+      setImportStatus(
+        "Errore durante la lettura del file. Verifica il formato del tracciato.",
+        "error"
+      );
+    }
+  };
+
+  reader.onerror = () => {
+    setImportStatus("Impossibile leggere il file selezionato.", "error");
+  };
+
+  reader.readAsArrayBuffer(file);
+});
+
+importFileInput.addEventListener("change", () => {
+  setImportStatus("", "info");
 });
 
 updateUI();

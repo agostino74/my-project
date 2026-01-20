@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Bilancio Familiare</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <main class="app">
@@ -42,6 +43,25 @@
         </label>
         <button type="submit">Salva movimento</button>
       </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <div>
+          <h2>Importa tracciato Excel</h2>
+          <p class="form__helper">
+            Colonne richieste: data contabile, data valuta, importo, descrizione.
+          </p>
+        </div>
+      </div>
+      <div class="form">
+        <label>
+          File Excel
+          <input type="file" id="import-file" accept=".xlsx,.xls" />
+        </label>
+        <button type="button" id="import-button">Importa movimenti</button>
+      </div>
+      <p class="import-status" id="import-status" role="status" aria-live="polite"></p>
     </section>
 
     <section class="panel panel--split">
